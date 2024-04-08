@@ -1,6 +1,7 @@
 package ciedorp.hammers.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
@@ -13,7 +14,7 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 public class SurroudingPosititons {
-    private static ArrayList<Vec3i> surroundingPos = new ArrayList<>();
+    private static final ArrayList<Vec3i> surroundingPos = new ArrayList<>();
 
     static {
         for (int x = -1; x <= 1; x++) {
@@ -25,7 +26,7 @@ public class SurroudingPosititons {
         }
     }
 
-    public static ArrayList<BlockPos> getSurroundingBlocks(BlockPos pos, Direction direction){
+    public static List<BlockPos> getSurroundingBlocks(BlockPos pos, Direction direction){
         ArrayList<BlockPos> surroundingBlocks = new ArrayList<>();
 
         for (Vec3i vec3i : surroundingPos) {
@@ -47,7 +48,7 @@ public class SurroudingPosititons {
         return surroundingBlocks;
     }
 
-    public static ArrayList<BlockPos> getSurroundingBlocks(World world, PlayerEntity player, BlockPos pos){
+    public static List<BlockPos> getSurroundingBlocks(World world, PlayerEntity player, BlockPos pos){
         Vec3d cameraPos = player.getCameraPosVec(1);
         Vec3d rotation = player.getRotationVec(1);
         double reachDistance = ReachDistance.getReachDistance(player);
@@ -58,7 +59,7 @@ public class SurroudingPosititons {
             Direction direction = blockHitResult.getSide();
             return getSurroundingBlocks(pos, direction);
         }
-        return new ArrayList<BlockPos>();
+        return new ArrayList<>();
     }
 
 }

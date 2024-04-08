@@ -1,20 +1,5 @@
 package ciedorp.hammers.mixin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.gen.Invoker;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import ciedorp.hammers.Hammers;
 import ciedorp.hammers.items.HammerItem;
 import ciedorp.hammers.util.AppendedObjectIterator;
 import ciedorp.hammers.util.SurroudingPosititons;
@@ -27,8 +12,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BlockBreakingInfo;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -38,21 +25,35 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.RaycastContext;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+
 
 @Mixin(WorldRenderer.class)
 @Environment(EnvType.CLIENT)
-public class WorldRendererMixin {
+public abstract class WorldRendererMixin {
    
     @Shadow @Final private MinecraftClient client;
     @Shadow private ClientWorld world;
     @Shadow @Final private Long2ObjectMap<SortedSet<BlockBreakingInfo>> blockBreakingProgressions;
-    
+
+    @Shadow public abstract void tickRainSplashing(Camera camera);
+
+    @Shadow public abstract ChunkBuilder getChunkBuilder();
+
     @Inject(at = @At("HEAD"), method = "drawBlockOutline", cancellable = true)
     private void drawBlockOutline(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci){
         if (!(entity instanceof PlayerEntity player)) {
@@ -66,12 +67,7 @@ public class WorldRendererMixin {
             return;
         }
 
-        Vec3d camera = new Vec3d(cameraX, cameraY, cameraZ);
-        Vec3d blockPos = pos.toCenterPos();
-        BlockHitResult blockHitResult = world.raycast(new RaycastContext(camera, blockPos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
-        Direction direction = blockHitResult.getSide();
-
-        ArrayList<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(pos, direction);
+        List<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(world, player, pos);
         hammer.setSurroundingBlocksPos(seeableBlocks);
 
         List<VoxelShape> outlineShapes = new ArrayList<>();
@@ -86,9 +82,9 @@ public class WorldRendererMixin {
             }
 
             outlineShapes.forEach(shape -> drawCuboidShapeOutline(matrices, vertexConsumer, shape,
-                (double) crosshairPos.getX() - cameraX,
-                (double) crosshairPos.getY() - cameraY,
-                (double) crosshairPos.getZ() - cameraZ,
+                    crosshairPos.getX() - cameraX,
+                    crosshairPos.getY() - cameraY,
+                    crosshairPos.getZ() - cameraZ,
                 0.08f, 0.8f, 0.996f, 1));
 
             ci.cancel();
@@ -113,12 +109,12 @@ public class WorldRendererMixin {
         ItemStack heldStack = this.client.player.getInventory().getMainHandStack();
 
         // make sure we should display the outline based on the tool
-        if (heldStack.getItem() instanceof HammerItem) {
+        if (heldStack.getItem() instanceof HammerItem hammer) {
             HitResult crosshairTarget = client.crosshairTarget;
 
             // ensure we're not displaying an outline on a creeper or air
-            if (crosshairTarget instanceof BlockHitResult) {
-                BlockPos crosshairPos = ((BlockHitResult) crosshairTarget).getBlockPos();
+            if (crosshairTarget instanceof BlockHitResult blockHitResult) {
+                BlockPos crosshairPos = blockHitResult.getBlockPos();
                 SortedSet<BlockBreakingInfo> infos = this.blockBreakingProgressions.get(crosshairPos.asLong());
 
                 // make sure current block breaking progress is valid
@@ -127,7 +123,8 @@ public class WorldRendererMixin {
                     int stage = breakingInfo.getStage();
 
                     // collect positions for displaying outlines at
-                    List<BlockPos> positions = SurroudingPosititons.getSurroundingBlocks(world, client.player, crosshairPos);
+//                    List<BlockPos> positions = SurroudingPosititons.getSurroundingBlocks(world, client.player, crosshairPos);
+                    List<BlockPos> positions = hammer.getFilteredSurroundingBlocks(world, client.player);
                     Long2ObjectMap<BlockBreakingInfo> map = new Long2ObjectLinkedOpenHashMap<>(positions.size());
 
                     // filter positions
@@ -145,3 +142,4 @@ public class WorldRendererMixin {
         return Long2ObjectMaps.emptyMap();
     }
 }
+

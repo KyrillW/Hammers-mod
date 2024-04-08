@@ -1,10 +1,12 @@
 package ciedorp.hammers.items;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import ciedorp.hammers.Hammers;
 import ciedorp.hammers.tags.ModBlockTags;
+import ciedorp.hammers.util.BlockInfo;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -13,36 +15,44 @@ import net.minecraft.item.ToolMaterial;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class HammerItem extends MiningToolItem {
     private boolean isMining = false;
-    private ArrayList<BlockPos> surroundingBlocks = new ArrayList<>();
+    private List<BlockPos> surroundingBlocks = new ArrayList<>();
+    private BlockPos middleBlock = new BlockPos(0, 0,  0);
 
     public HammerItem(float attackDamage, float attackSpeed, ToolMaterial material, Item.Settings settings) {
         super(attackDamage, attackSpeed, material, ModBlockTags.HAMMER_MINEABLE, settings);
     }
 
-    public boolean getMining(){
+    public boolean isMining(){
         return isMining;
     }
 
-    public void setMining(boolean isMining){
-        this.isMining = isMining;
-    }
-
-    public ArrayList<BlockPos> getSurroundingBlocksPos(){
-        return surroundingBlocks;
-    }
-
-    public void setSurroundingBlocksPos(ArrayList<BlockPos> posList){
+    public void setSurroundingBlocksPos(List<BlockPos> posList){
         surroundingBlocks = posList;
+        middleBlock = surroundingBlocks.get(4);
     }
-    
+
+    public List<BlockPos> getFilteredSurroundingBlocks(World world, PlayerEntity player) {
+        ArrayList<BlockPos> list = new ArrayList<>();
+        float middleBlockBreakDelta = BlockInfo.blockBreakingTime(world, world.getBlockState(middleBlock), middleBlock, player);
+        for (BlockPos blockPos : surroundingBlocks) {
+            float breakTime = BlockInfo.blockBreakingTime(world, world.getBlockState(blockPos), blockPos, player);
+            if (breakTime >= middleBlockBreakDelta || breakTime >= 1){
+                list.add(blockPos);
+            }
+        }
+        return list;
+    }
+
     public boolean tryBreakingSurroundingBlocks(World world, PlayerEntity player){
+        List<BlockPos> filteredSurroundingBlocks = getFilteredSurroundingBlocks(world, player);
         ServerPlayerInteractionManager interactionManager = ((ServerPlayerEntity) player).interactionManager;
         this.isMining = true;
-        for (BlockPos pos : surroundingBlocks) {
+        for (BlockPos pos : filteredSurroundingBlocks) {
             BlockState state = world.getBlockState(pos);
             state.getBlock().onBreak(world, pos, state, player);
             if (!interactionManager.tryBreakBlock(pos)) {
@@ -57,6 +67,7 @@ public class HammerItem extends MiningToolItem {
             boolean bl = world.removeBlock(pos, false);
             if (bl) {
                 state.getBlock().onBroken(world, pos, state);
+                Block.dropStacks(state, world, pos);
             }
         }
         this.isMining = false;
