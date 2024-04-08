@@ -1,8 +1,5 @@
 package ciedorp.hammers.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -13,7 +10,15 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SurroudingPosititons {
+
+    private SurroudingPosititons() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final ArrayList<Vec3i> surroundingPos = new ArrayList<>();
 
     static {
@@ -61,5 +66,4 @@ public class SurroudingPosititons {
         }
         return new ArrayList<>();
     }
-
 }

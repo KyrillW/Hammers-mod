@@ -12,10 +12,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BlockBreakingInfo;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -50,10 +48,6 @@ public abstract class WorldRendererMixin {
     @Shadow private ClientWorld world;
     @Shadow @Final private Long2ObjectMap<SortedSet<BlockBreakingInfo>> blockBreakingProgressions;
 
-    @Shadow public abstract void tickRainSplashing(Camera camera);
-
-    @Shadow public abstract ChunkBuilder getChunkBuilder();
-
     @Inject(at = @At("HEAD"), method = "drawBlockOutline", cancellable = true)
     private void drawBlockOutline(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci){
         if (!(entity instanceof PlayerEntity player)) {
@@ -68,7 +62,9 @@ public abstract class WorldRendererMixin {
         }
 
         List<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(world, player, pos);
-        hammer.setSurroundingBlocksPos(seeableBlocks);
+        if (!seeableBlocks.isEmpty()) {
+            hammer.setSurroundingBlocksPos(seeableBlocks);
+        }
 
         List<VoxelShape> outlineShapes = new ArrayList<>();
         outlineShapes.add(VoxelShapes.empty());

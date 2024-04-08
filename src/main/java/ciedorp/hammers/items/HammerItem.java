@@ -1,8 +1,5 @@
 package ciedorp.hammers.items;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ciedorp.hammers.tags.ModBlockTags;
 import ciedorp.hammers.util.BlockInfo;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -15,8 +12,10 @@ import net.minecraft.item.ToolMaterial;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HammerItem extends MiningToolItem {
     private boolean isMining = false;
@@ -33,7 +32,9 @@ public class HammerItem extends MiningToolItem {
 
     public void setSurroundingBlocksPos(List<BlockPos> posList){
         surroundingBlocks = posList;
-        middleBlock = surroundingBlocks.get(4);
+        if (surroundingBlocks.size() > 4){
+            middleBlock = surroundingBlocks.get(4);
+        }
     }
 
     public List<BlockPos> getFilteredSurroundingBlocks(World world, PlayerEntity player) {
