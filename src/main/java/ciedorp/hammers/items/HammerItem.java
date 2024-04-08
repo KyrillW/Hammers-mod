@@ -41,6 +41,9 @@ public class HammerItem extends MiningToolItem {
         ArrayList<BlockPos> list = new ArrayList<>();
         float middleBlockBreakDelta = BlockInfo.blockBreakingTime(world, world.getBlockState(middleBlock), middleBlock, player);
         for (BlockPos blockPos : surroundingBlocks) {
+            if (!world.getBlockState(blockPos).isIn(ModBlockTags.HAMMER_MINEABLE)) {
+                continue;
+            }
             float breakTime = BlockInfo.blockBreakingTime(world, world.getBlockState(blockPos), blockPos, player);
             if (breakTime >= middleBlockBreakDelta || breakTime >= 1){
                 list.add(blockPos);
@@ -55,7 +58,11 @@ public class HammerItem extends MiningToolItem {
         this.isMining = true;
         for (BlockPos pos : filteredSurroundingBlocks) {
             BlockState state = world.getBlockState(pos);
-            state.getBlock().onBreak(world, pos, state, player);
+            if (state.isAir()) {
+                continue;
+            }
+            Block block = state.getBlock();
+            block.onBreak(world, pos, state, player);
             if (!interactionManager.tryBreakBlock(pos)) {
                 continue;
             }
@@ -67,8 +74,13 @@ public class HammerItem extends MiningToolItem {
 
             boolean bl = world.removeBlock(pos, false);
             if (bl) {
-                state.getBlock().onBroken(world, pos, state);
-                Block.dropStacks(state, world, pos);
+                block.onBroken(world, pos, state);
+            }
+
+            boolean bl2 = player.canHarvest(state);
+            player.getMainHandStack().postMine(world, state, pos, player);
+            if (bl && bl2) {
+                block.afterBreak(world, player, pos, state, world.getBlockEntity(pos), player.getMainHandStack());
             }
         }
         this.isMining = false;

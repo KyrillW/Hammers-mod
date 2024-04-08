@@ -1,19 +1,18 @@
 package ciedorp.hammers.mixin;
 
+import ciedorp.hammers.items.HammerItem;
+import ciedorp.hammers.tags.ModBlockTags;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import ciedorp.hammers.items.HammerItem;
 
 @Mixin(value = ServerPlayerInteractionManager.class, priority = 1001)
 public class ServerPlayerInteractionManagerMixin {
@@ -30,6 +29,9 @@ public class ServerPlayerInteractionManagerMixin {
         cancellable = true
     )
     private void breakBlocks(BlockPos pos, CallbackInfoReturnable<Boolean> cir){
+        if (!world.getBlockState(pos).isIn(ModBlockTags.HAMMER_MINEABLE)) {
+            return;
+        }
         Item heldItem = player.getMainHandStack().getItem();
         if (!(heldItem instanceof HammerItem hammer)) {
             return;
