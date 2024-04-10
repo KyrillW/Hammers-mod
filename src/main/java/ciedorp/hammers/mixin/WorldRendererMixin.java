@@ -1,6 +1,7 @@
 package ciedorp.hammers.mixin;
 
 import ciedorp.hammers.items.HammerItem;
+import ciedorp.hammers.tags.ModBlockTags;
 import ciedorp.hammers.util.AppendedObjectIterator;
 import ciedorp.hammers.util.SurroudingPosititons;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -57,13 +58,13 @@ public abstract class WorldRendererMixin {
         if (!(tool instanceof HammerItem hammer)) {
             return;
         }
-        if (!(tool.isSuitableFor(state))) {
-            return;
-        }
-
         List<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(world, player, pos);
         if (!seeableBlocks.isEmpty()) {
             hammer.setSurroundingBlocksPos(seeableBlocks);
+        }
+
+        if (!state.isIn(ModBlockTags.HAMMER_MINEABLE)) {
+            return;
         }
 
         List<VoxelShape> outlineShapes = new ArrayList<>();
@@ -119,7 +120,6 @@ public abstract class WorldRendererMixin {
                     int stage = breakingInfo.getStage();
 
                     // collect positions for displaying outlines at
-//                    List<BlockPos> positions = SurroudingPosititons.getSurroundingBlocks(world, client.player, crosshairPos);
                     List<BlockPos> positions = hammer.getFilteredSurroundingBlocks(world, client.player);
                     Long2ObjectMap<BlockBreakingInfo> map = new Long2ObjectLinkedOpenHashMap<>(positions.size());
 

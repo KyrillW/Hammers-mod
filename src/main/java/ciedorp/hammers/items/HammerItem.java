@@ -39,6 +39,9 @@ public class HammerItem extends MiningToolItem {
 
     public List<BlockPos> getFilteredSurroundingBlocks(World world, PlayerEntity player) {
         ArrayList<BlockPos> list = new ArrayList<>();
+        if (!world.getBlockState(middleBlock).isIn(ModBlockTags.HAMMER_MINEABLE)) {
+            return list;
+        }
         float middleBlockBreakDelta = BlockInfo.blockBreakingTime(world, world.getBlockState(middleBlock), middleBlock, player);
         for (BlockPos blockPos : surroundingBlocks) {
             if (!world.getBlockState(blockPos).isIn(ModBlockTags.HAMMER_MINEABLE)) {
@@ -84,6 +87,7 @@ public class HammerItem extends MiningToolItem {
             }
         }
         this.isMining = false;
+        surroundingBlocks.clear();
         return true;
     }
 }
