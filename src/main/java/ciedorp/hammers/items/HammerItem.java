@@ -5,12 +5,16 @@ import ciedorp.hammers.util.BlockInfo;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -21,9 +25,21 @@ public class HammerItem extends MiningToolItem {
     private boolean isMining = false;
     private List<BlockPos> surroundingBlocks = new ArrayList<>();
     private BlockPos middleBlock = new BlockPos(0, 0,  0);
+    private int size = 1;
+    private int speed = 1;
+    private int durability = 1;
 
     public HammerItem(float attackDamage, float attackSpeed, ToolMaterial material, Item.Settings settings) {
         super(attackDamage, attackSpeed, material, ModBlockTags.HAMMER_MINEABLE, settings);
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
+        tooltip.add(Text.literal("HammerInfo:").formatted(Formatting.GRAY));
+        tooltip.add(Text.literal(" Durability " + durability).formatted(Formatting.BLUE));
+        tooltip.add(Text.literal(" Size " + size).formatted(Formatting.BLUE));
+        tooltip.add(Text.literal(" Speed " + speed).formatted(Formatting.BLUE));
+        tooltip.add(Text.of(""));
     }
 
     public boolean isMining(){
