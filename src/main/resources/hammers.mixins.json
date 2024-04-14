@@ -3,6 +3,8 @@
   "package": "ciedorp.hammers.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AnvilScreenHandlerMixin",
+    "ItemStackMixin",
     "ServerPlayerInteractionManagerMixin",
     "WorldRendererMixin"
   ],
