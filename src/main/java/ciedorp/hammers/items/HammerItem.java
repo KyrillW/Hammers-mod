@@ -1,5 +1,6 @@
 package ciedorp.hammers.items;
 
+import ciedorp.hammers.interfaces.HammerStackInterface;
 import ciedorp.hammers.tags.ModBlockTags;
 import ciedorp.hammers.util.BlockInfo;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -35,9 +36,10 @@ public class HammerItem extends MiningToolItem {
 
     @Override
     public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
+        HammerStackInterface hammerStack = (HammerStackInterface) (Object) stack;
         tooltip.add(Text.literal("HammerInfo:").formatted(Formatting.GRAY));
         tooltip.add(Text.literal(" Durability " + durability).formatted(Formatting.BLUE));
-        tooltip.add(Text.literal(" Size " + size).formatted(Formatting.BLUE));
+        tooltip.add(Text.literal(" Size " + hammerStack.getSize()).formatted(Formatting.BLUE));
         tooltip.add(Text.literal(" Speed " + speed).formatted(Formatting.BLUE));
         tooltip.add(Text.of(""));
     }
@@ -105,5 +107,17 @@ public class HammerItem extends MiningToolItem {
         this.isMining = false;
         surroundingBlocks.clear();
         return true;
+    }
+
+    public boolean upgradeSize(){
+        if (size <= 9){
+            size++;
+            return true;
+        }
+        return false;
+    }
+
+    public int getSize(){
+        return size;
     }
 }
