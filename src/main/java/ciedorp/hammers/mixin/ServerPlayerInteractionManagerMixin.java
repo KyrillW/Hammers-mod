@@ -53,7 +53,7 @@ public class ServerPlayerInteractionManagerMixin implements HammerMining {
         }
         List<BlockPos> filteredBlocks = SurroudingPosititons.getFilteredSurroundingBlocks(world, player, seeableBlocks);
 
-        boolean result = isMining || BlockBreaker.tryBreakingSurroundingBlocks(world, player, filteredBlocks);
+        boolean result = isMining || BlockBreaker.tryBreakingSurroundingBlocks(world, player, filteredBlocks, pos);
         if (result) {
             cir.setReturnValue(true);
         }

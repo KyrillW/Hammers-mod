@@ -1,14 +1,7 @@
 package ciedorp.hammers;
 
-import ciedorp.hammers.items.HammerItem;
+import ciedorp.hammers.items.ItemInit;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ToolMaterials;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,20 +10,12 @@ public class Hammers implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static HammerItem DIAMOND_HAMMER = new HammerItem(0, 0, ToolMaterials.DIAMOND, new Item.Settings());
+//	public static HammerItem DIAMOND_HAMMER = new HammerItem(0, 0, ToolMaterials.DIAMOND, new Item.Settings());
 
 	@Override
 	public void onInitialize() {
 
-		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "diamond_hammer"), DIAMOND_HAMMER);
-
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(content -> {
-			content.add(DIAMOND_HAMMER);
-		});
-
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SEARCH).register(content -> {
-			content.add(DIAMOND_HAMMER);
-		});
+		ItemInit.registration();
 
 //		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(literal("toggleCreeperGriefing").requires(source -> source.hasPermissionLevel(4)).executes(context -> {
 //			final ServerCommandSource source = context.getSource();
