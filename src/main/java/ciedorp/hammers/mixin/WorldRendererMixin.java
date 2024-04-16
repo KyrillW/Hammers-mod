@@ -1,5 +1,6 @@
 package ciedorp.hammers.mixin;
 
+import ciedorp.hammers.interfaces.HammerStack;
 import ciedorp.hammers.items.HammerItem;
 import ciedorp.hammers.tags.ModBlockTags;
 import ciedorp.hammers.util.AppendedObjectIterator;
@@ -54,14 +55,17 @@ public abstract class WorldRendererMixin {
         if (!(entity instanceof PlayerEntity player)) {
             return;
         }
-        Item tool = player.getMainHandStack().getItem();
-        if (!(tool instanceof HammerItem hammer)) {
+
+        ItemStack toolStack = player.getMainHandStack();
+        Item tool = toolStack.getItem();
+        if (!(tool instanceof HammerItem)) {
             return;
         }
-        List<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(world, player, pos);
-        if (!seeableBlocks.isEmpty()) {
-            hammer.setSurroundingBlocksPos(seeableBlocks);
-        }
+        HammerStack hammerStack = (HammerStack) (Object) toolStack;
+        List<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(world, player, hammerStack.getSize());
+//        if (!seeableBlocks.isEmpty()) {
+//            hammer.setSurroundingBlocksPos(seeableBlocks);
+//        }
 
         if (!state.isIn(ModBlockTags.HAMMER_MINEABLE)) {
             return;
@@ -106,7 +110,7 @@ public abstract class WorldRendererMixin {
         ItemStack heldStack = this.client.player.getInventory().getMainHandStack();
 
         // make sure we should display the outline based on the tool
-        if (heldStack.getItem() instanceof HammerItem hammer) {
+        if (heldStack.getItem() instanceof HammerItem) {
             HitResult crosshairTarget = client.crosshairTarget;
 
             // ensure we're not displaying an outline on a creeper or air
@@ -120,17 +124,20 @@ public abstract class WorldRendererMixin {
                     int stage = breakingInfo.getStage();
 
                     // collect positions for displaying outlines at
-                    List<BlockPos> positions = hammer.getFilteredSurroundingBlocks(world, client.player);
-                    Long2ObjectMap<BlockBreakingInfo> map = new Long2ObjectLinkedOpenHashMap<>(positions.size());
+                    HammerStack hammerStack = (HammerStack) (Object) heldStack;
+                    List<BlockPos> surroundingBlocks = SurroudingPosititons.getSurroundingBlocks(world, client.player, hammerStack.getSize());
+                    if (!surroundingBlocks.isEmpty()) {
+                        List<BlockPos> positions = SurroudingPosititons.getFilteredSurroundingBlocks(world, client.player, surroundingBlocks);
+                        Long2ObjectMap<BlockBreakingInfo> map = new Long2ObjectLinkedOpenHashMap<>(positions.size());
 
-                    // filter positions
-                    for (BlockPos position : positions) {
-                        BlockBreakingInfo info = new BlockBreakingInfo(breakingInfo.hashCode(), position);
-                        info.setStage(stage);
-                        map.put(position.asLong(), info);
+                        // filter positions
+                        for (BlockPos position : positions) {
+                            BlockBreakingInfo info = new BlockBreakingInfo(breakingInfo.hashCode(), position);
+                            info.setStage(stage);
+                            map.put(position.asLong(), info);
+                        }
+                        return map;
                     }
-
-                    return map;
                 }
             }
         }

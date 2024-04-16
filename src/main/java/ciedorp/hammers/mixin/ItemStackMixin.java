@@ -1,6 +1,6 @@
 package ciedorp.hammers.mixin;
 
-import ciedorp.hammers.interfaces.HammerStackInterface;
+import ciedorp.hammers.interfaces.HammerStack;
 import ciedorp.hammers.items.HammerItem;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemStack.class)
-public class ItemStackMixin implements HammerStackInterface {
+public class ItemStackMixin implements HammerStack {
     ItemStack self = (ItemStack) (Object) this;
     private static final String TAG_SIZE = "Ciedorp_HammerSize";
 
@@ -31,7 +31,7 @@ public class ItemStackMixin implements HammerStackInterface {
 
     @Override
     public boolean upgradeSize() {
-        if (getSize() <= 9){
+        if (getSize() <= 4){
             setSize(getSize() + 1);
             return true;
         }
@@ -44,4 +44,11 @@ public class ItemStackMixin implements HammerStackInterface {
             setSize(1);
         }
     }
+
+//    @Inject(method = "<init>(Lnet/minecraft/nbt/NbtCompound;)V", at = @At("TAIL"))
+//    private void onInit(NbtCompound nbt, CallbackInfo ci) {
+//        if (self.getItem() instanceof HammerItem) {
+//            setSize(1);
+//        }
+//    }
 }
