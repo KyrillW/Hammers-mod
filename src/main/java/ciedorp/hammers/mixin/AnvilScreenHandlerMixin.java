@@ -2,8 +2,8 @@ package ciedorp.hammers.mixin;
 
 import ciedorp.hammers.interfaces.HammerStack;
 import ciedorp.hammers.items.HammerItem;
+import ciedorp.hammers.items.SizeUpgradeItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.slot.Slot;
@@ -24,7 +24,7 @@ public class AnvilScreenHandlerMixin {
         ItemStack input_1 = self.getSlot(0).getStack();
         ItemStack input_2 = self.getSlot(1).getStack();
         Slot output = self.getSlot(2);
-        if (input_1.getItem() instanceof HammerItem && input_2.getItem() == Items.OBSIDIAN) {
+        if (input_1.getItem() instanceof HammerItem && input_2.getItem() instanceof SizeUpgradeItem) {
             ItemStack outputStack = input_1.copy();
             HammerStack newHammer = (HammerStack) (Object) outputStack;
             if (newHammer.upgradeSize()){

@@ -1,23 +1,38 @@
 package ciedorp.hammers.util;
 
 import ciedorp.hammers.interfaces.HammerMining;
+import ciedorp.hammers.interfaces.HammerStack;
+import ciedorp.hammers.items.ItemInit;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Random;
 
 public class BlockBreaker {
-    public static boolean tryBreakingSurroundingBlocks(World world, PlayerEntity player, List<BlockPos> filteredSurroundingBlocks){
+    private static Random random = new Random();
+    public static boolean tryBreakingSurroundingBlocks(World world, PlayerEntity player, List<BlockPos> filteredSurroundingBlocks, BlockPos middleBlock){
         ServerPlayerInteractionManager interactionManager = ((ServerPlayerEntity) player).interactionManager;
         HammerMining hammerMining = (HammerMining) interactionManager;
         hammerMining.setHammerIsMining(true);
+
+        ItemStack heldStack = player.getMainHandStack();
+        HammerStack hammerStack = (HammerStack) (Object) heldStack;
+
+        assert hammerStack != null;
+        boolean lucky = isLucky(hammerStack);
+        System.out.println();
+
         for (BlockPos pos : filteredSurroundingBlocks) {
             BlockState state = world.getBlockState(pos);
             if (state.isAir()) {
@@ -41,14 +56,34 @@ public class BlockBreaker {
 
             if (interactionManager.getGameMode() != GameMode.CREATIVE) {
                 boolean bl2 = player.canHarvest(state);
-                player.getMainHandStack().postMine(world, state, pos, player);
+
+                //TODO Als durability op is niet alles minen.
+
+                ItemStack heldStack2 = heldStack.copy();
+                heldStack.postMine(world, state, pos, player);
                 if (bl && bl2) {
-                    block.afterBreak(world, player, pos, state, world.getBlockEntity(pos), player.getMainHandStack());
+                    if (lucky) {
+                        Block.dropStack(world, middleBlock, new ItemStack(ItemInit.SIZE_CORE));
+                        player.sendMessage(Text.literal("Size core dropped!").formatted(Formatting.BLUE), true);
+                        lucky = false;
+                    }
+                    block.afterBreak(world, player, pos, state, world.getBlockEntity(pos), heldStack2);
                 }
             }
 
         }
         hammerMining.setHammerIsMining(false);
         return true;
+    }
+
+    private static boolean isLucky(HammerStack hammerStack) {
+        for (int i = 0; i < hammerStack.getSize(); i++) {
+            int getal = random.nextInt(2); //TODO Change drop chance
+            System.out.println(getal);
+            if (getal == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
