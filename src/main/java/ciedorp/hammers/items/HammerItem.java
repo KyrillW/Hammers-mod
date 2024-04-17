@@ -9,6 +9,7 @@ import net.minecraft.item.MiningToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -30,5 +31,17 @@ public class HammerItem extends MiningToolItem {
             tooltip.add(Text.literal(" Speed " + speed).formatted(Formatting.BLUE));
             tooltip.add(Text.of(""));
         }
+    }
+
+    @Override
+    public int getItemBarStep(ItemStack stack) {
+        return Math.round(13.0f - (float)stack.getDamage() * 13.0f / (float)stack.getMaxDamage());
+    }
+
+
+    @Override
+    public int getItemBarColor(ItemStack stack) {
+        float f = Math.max(0.0f, ((float)stack.getMaxDamage() - (float)stack.getDamage()) / (float)stack.getMaxDamage());
+        return MathHelper.hsvToRgb(f / 3.0f, 1.0f, 1.0f);
     }
 }
