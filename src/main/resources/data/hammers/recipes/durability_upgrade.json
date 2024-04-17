@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "WRW",
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:diamond"
+    },
+    "R": {
+      "item": "hammers:durability_core"
+    }
+  },
+  "result": {
+    "item": "hammers:durability_upgrade"
+  }
+}

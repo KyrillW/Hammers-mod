@@ -9,13 +9,13 @@ import net.minecraft.item.MiningToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.List;
 
 public class HammerItem extends MiningToolItem {
     private int speed = 1;
-    private int durability = 1;
 
     public HammerItem(float attackDamage, float attackSpeed, ToolMaterial material, Item.Settings settings) {
         super(attackDamage, attackSpeed, material, ModBlockTags.HAMMER_MINEABLE, settings);
@@ -23,11 +23,25 @@ public class HammerItem extends MiningToolItem {
 
     @Override
     public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-        HammerStack hammerStack = (HammerStack) (Object) stack;
-        tooltip.add(Text.literal("HammerInfo:").formatted(Formatting.GRAY));
-        tooltip.add(Text.literal(" Durability " + durability).formatted(Formatting.BLUE));
-        tooltip.add(Text.literal(" Size " + hammerStack.getSize()).formatted(Formatting.BLUE));
-        tooltip.add(Text.literal(" Speed " + speed).formatted(Formatting.BLUE));
-        tooltip.add(Text.of(""));
+        if (stack.getItem() instanceof HammerItem) {
+            HammerStack hammerStack = (HammerStack) (Object) stack;
+            tooltip.add(Text.literal("HammerInfo:").formatted(Formatting.GRAY));
+            tooltip.add(Text.literal(" Durability " + hammerStack.getHammerDurability()).formatted(Formatting.BLUE));
+            tooltip.add(Text.literal(" Size " + hammerStack.getSize()).formatted(Formatting.BLUE));
+            tooltip.add(Text.literal(" Speed " + speed).formatted(Formatting.BLUE));
+            tooltip.add(Text.of(""));
+        }
+    }
+
+    @Override
+    public int getItemBarStep(ItemStack stack) {
+        return Math.round(13.0f - (float)stack.getDamage() * 13.0f / (float)stack.getMaxDamage());
+    }
+
+
+    @Override
+    public int getItemBarColor(ItemStack stack) {
+        float f = Math.max(0.0f, ((float)stack.getMaxDamage() - (float)stack.getDamage()) / (float)stack.getMaxDamage());
+        return MathHelper.hsvToRgb(f / 3.0f, 1.0f, 1.0f);
     }
 }
