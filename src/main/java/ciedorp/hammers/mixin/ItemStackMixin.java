@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemStackMixin implements HammerStack {
     ItemStack self = (ItemStack) (Object) this;
     private static final String TAG_SIZE = "Ciedorp_HammerSize";
+    private static final String TAG_DURABILITY = "Ciedorp_HammerDurability";
 
     @Shadow
     private NbtCompound nbt;
@@ -38,10 +39,30 @@ public class ItemStackMixin implements HammerStack {
         return false;
     }
 
+    @Override
+    public int getHammerDurability() {
+        return nbt.getInt(TAG_DURABILITY);
+    }
+
+    @Override
+    public void setHammerDurability(int durability) {
+        nbt.putInt(TAG_DURABILITY, durability);
+    }
+
+    @Override
+    public boolean upgradeHammerDurability() {
+        if (getHammerDurability() <= 4){
+            setHammerDurability(getHammerDurability() + 1);
+            return true;
+        }
+        return false;
+    }
+
     @Inject(method = "<init>(Lnet/minecraft/item/ItemConvertible;)V", at = @At("TAIL"))
     private void onInit(ItemConvertible item, CallbackInfo ci) {
         if (self.getItem() instanceof HammerItem) {
             setSize(1);
+            setHammerDurability(1);
         }
     }
 

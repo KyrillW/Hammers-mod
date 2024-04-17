@@ -1,6 +1,7 @@
 package ciedorp.hammers.mixin;
 
 import ciedorp.hammers.interfaces.HammerStack;
+import ciedorp.hammers.items.DurabilityUpgradeItem;
 import ciedorp.hammers.items.HammerItem;
 import ciedorp.hammers.items.SizeUpgradeItem;
 import net.minecraft.item.ItemStack;
@@ -24,17 +25,22 @@ public class AnvilScreenHandlerMixin {
         ItemStack input_1 = self.getSlot(0).getStack();
         ItemStack input_2 = self.getSlot(1).getStack();
         Slot output = self.getSlot(2);
-        if (input_1.getItem() instanceof HammerItem && input_2.getItem() instanceof SizeUpgradeItem) {
+        if (input_1.getItem() instanceof HammerItem && (input_2.getItem() instanceof SizeUpgradeItem || input_2.getItem() instanceof DurabilityUpgradeItem)) {
             ItemStack outputStack = input_1.copy();
             HammerStack newHammer = (HammerStack) (Object) outputStack;
-            if (newHammer.upgradeSize()){
-                this.levelCost.set(newHammer.getSize());
-                output.setStack(outputStack);
-                ci.cancel();
+            if (input_2.getItem() instanceof SizeUpgradeItem) {
+                if (newHammer.upgradeSize()){
+                    this.levelCost.set(newHammer.getSize());
+                    output.setStack(outputStack);
+                    ci.cancel();
+                }
+            } else if (input_2.getItem() instanceof DurabilityUpgradeItem) {
+                if (newHammer.upgradeHammerDurability()){
+                    this.levelCost.set(newHammer.getHammerDurability());
+                    output.setStack(outputStack);
+                    ci.cancel();
+                }
             }
         }
     }
-
-
-
 }

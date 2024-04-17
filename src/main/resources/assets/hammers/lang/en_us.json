@@ -1,5 +1,7 @@
 {
   "item.hammers.diamond_hammer": "Diamond Hammer",
   "item.hammers.size_core": "Size Core",
-  "item.hammers.size_upgrade": "Size Upgrade"
+  "item.hammers.size_upgrade": "Size Upgrade",
+  "item.hammers.durability_core": "Durability Core",
+  "item.hammers.durability_upgrade": "Durability Upgrade"
 }
