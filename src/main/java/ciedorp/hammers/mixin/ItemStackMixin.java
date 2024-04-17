@@ -79,7 +79,6 @@ public class ItemStackMixin implements HammerStack {
         if (self.getItem() instanceof HammerItem hammer) {
             HammerStack hammerStack = (HammerStack) (Object) self;
             cir.setReturnValue(hammer.getMaxDamage() * hammerStack.getHammerDurability());
-            //TODO: Fix durability, goes into red into other inv slots
         }
     }
 }
