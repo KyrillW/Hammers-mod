@@ -17,6 +17,7 @@ public class ItemStackMixin implements HammerStack {
     ItemStack self = (ItemStack) (Object) this;
     private static final String TAG_SIZE = "Ciedorp_HammerSize";
     private static final String TAG_DURABILITY = "Ciedorp_HammerDurability";
+    private static final String TAG_SPEED = "Ciedorp_HammerSpeed";
 
     @Shadow
     private NbtCompound nbt;
@@ -59,11 +60,31 @@ public class ItemStackMixin implements HammerStack {
         return false;
     }
 
+    @Override
+    public int getSpeed() {
+        return nbt.getInt(TAG_SPEED);
+    }
+
+    @Override
+    public void setSpeed(int speed) {
+        nbt.putInt(TAG_SPEED, speed);
+    }
+
+    @Override
+    public boolean upgradeSpeed() {
+        if (getSpeed() <= 4){
+            setSpeed(getSpeed() + 1);
+            return true;
+        }
+        return false;
+    }
+
     @Inject(method = "<init>(Lnet/minecraft/item/ItemConvertible;)V", at = @At("TAIL"))
     private void onInit(ItemConvertible item, CallbackInfo ci) {
         if (self.getItem() instanceof HammerItem) {
             setSize(1);
             setHammerDurability(1);
+            setSpeed(1);
         }
     }
 
