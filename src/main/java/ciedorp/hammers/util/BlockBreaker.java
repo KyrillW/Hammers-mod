@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -31,7 +32,6 @@ public class BlockBreaker {
 
         assert hammerStack != null;
         boolean lucky = isLucky(hammerStack);
-        System.out.println();
 
         for (BlockPos pos : filteredSurroundingBlocks) {
             BlockState state = world.getBlockState(pos);
@@ -63,8 +63,11 @@ public class BlockBreaker {
                 heldStack.postMine(world, state, pos, player);
                 if (bl && bl2) {
                     if (lucky) {
-                        Block.dropStack(world, middleBlock, new ItemStack(ItemInit.SIZE_CORE));
-                        player.sendMessage(Text.literal("Size core dropped!").formatted(Formatting.BLUE), true);
+                        ItemStack luckyDrop = luckyItem();
+                        Block.dropStack(world, middleBlock, luckyDrop);
+                        MutableText notification = Text.translatable(luckyDrop.getItem().getTranslationKey()).formatted(Formatting.BLUE);
+                        notification.append(Text.literal(" dropped!").formatted(Formatting.BLUE));
+                        player.sendMessage(notification, true);
                         lucky = false;
                     }
                     block.afterBreak(world, player, pos, state, world.getBlockEntity(pos), heldStack2);
@@ -78,12 +81,16 @@ public class BlockBreaker {
 
     private static boolean isLucky(HammerStack hammerStack) {
         for (int i = 0; i < hammerStack.getSize(); i++) {
-            int getal = random.nextInt(2); //TODO Change drop chance
-            System.out.println(getal);
-            if (getal == 0) {
+            int luckyInt = random.nextInt(2); //TODO Change drop chance
+            if (luckyInt == 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static ItemStack luckyItem() {
+        int luckyInt = random.nextInt(ItemInit.HammerCores.size());
+        return new ItemStack(ItemInit.HammerCores.get(luckyInt));
     }
 }

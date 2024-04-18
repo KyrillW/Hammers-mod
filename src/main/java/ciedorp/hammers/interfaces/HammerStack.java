@@ -9,4 +9,8 @@ public interface HammerStack {
     public int getHammerDurability();
     public void setHammerDurability(int durability);
     public boolean upgradeHammerDurability();
+
+    public int getSpeed();
+    public void setSpeed(int speed);
+    public boolean upgradeSpeed();
 }

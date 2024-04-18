@@ -10,6 +10,9 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ItemInit {
 
     public static final HammerItem DIAMOND_HAMMER = new HammerItem(0, 0, ToolMaterials.DIAMOND, new Item.Settings());
@@ -18,7 +21,10 @@ public class ItemInit {
     public static final SizeUpgradeItem SIZE_UPGRADE = new SizeUpgradeItem(new Item.Settings().maxCount(1).rarity(Rarity.EPIC));
     public static final DurabilityCoreItem DURABILITY_CORE = new DurabilityCoreItem(new Item.Settings().rarity(Rarity.RARE));
     public static final DurabilityUpgradeItem DURABILITY_UPGRADE = new DurabilityUpgradeItem(new Item.Settings().maxCount(1).rarity(Rarity.EPIC));
+    public static final SpeedCoreItem SPEED_CORE = new SpeedCoreItem(new Item.Settings().rarity(Rarity.RARE));
+    public static final SpeedUpgradeItem SPEED_UPGRADE = new SpeedUpgradeItem(new Item.Settings().maxCount(1).rarity(Rarity.EPIC));
 
+    public static final List<Item> HammerCores = new ArrayList<>(List.of(SIZE_CORE, DURABILITY_CORE, SPEED_CORE));
 
     public static void registration() {
         // Register Diamond Hammer
@@ -65,7 +71,7 @@ public class ItemInit {
             content.add(DURABILITY_CORE);
         });
 
-        // Register Durability Core
+        // Register Durability Upgrade
         Registry.register(Registries.ITEM, new Identifier(Hammers.MOD_ID, "durability_upgrade"), DURABILITY_UPGRADE);
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(content -> {
@@ -75,5 +81,28 @@ public class ItemInit {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SEARCH).register(content -> {
             content.add(DURABILITY_UPGRADE);
         });
+
+        // Register Speed Core
+        Registry.register(Registries.ITEM, new Identifier(Hammers.MOD_ID, "speed_core"), SPEED_CORE);
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(content -> {
+            content.add(SPEED_CORE);
+        });
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.SEARCH).register(content -> {
+            content.add(SPEED_CORE);
+        });
+
+        // Register Speed Upgrade
+        Registry.register(Registries.ITEM, new Identifier(Hammers.MOD_ID, "speed_upgrade"), SPEED_UPGRADE);
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(content -> {
+            content.add(SPEED_UPGRADE);
+        });
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.SEARCH).register(content -> {
+            content.add(SPEED_UPGRADE);
+        });
+
     }
 }
