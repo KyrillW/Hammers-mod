@@ -29,7 +29,7 @@ public class AnvilScreenHandlerMixin {
         if (input_1.getItem() instanceof HammerItem && (input_2.getItem() instanceof SizeUpgradeItem || input_2.getItem() instanceof DurabilityUpgradeItem || input_2.getItem() instanceof SpeedUpgradeItem)) {
             ItemStack outputStack = input_1.copy();
             HammerStack newHammer = (HammerStack) (Object) outputStack;
-            if (input_2.getItem() instanceof SizeUpgradeItem) {
+            if (input_2.getItem() instanceof SizeUpgradeItem) { //TODO Fix when name is changed
                 if (newHammer.upgradeSize()){
                     this.levelCost.set(newHammer.getSize());
                     output.setStack(outputStack);
