@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:smithing_transform",
+    "template": {
+        "item": "minecraft:netherite_upgrade_smithing_template"
+    },
+    "base": {
+        "item": "hammers:diamond_hammer"
+    },
+    "addition": {
+        "item": "minecraft:netherite_block"
+    },
+    "result": {
+        "item": "hammers:netherite_hammer"
+    }
+}

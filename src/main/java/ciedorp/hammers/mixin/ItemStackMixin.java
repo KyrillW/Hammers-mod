@@ -84,7 +84,7 @@ public class ItemStackMixin implements HammerStack {
         if (self.getItem() instanceof HammerItem) {
             setSize(1);
             setHammerDurability(1);
-            setSpeed(1);
+            setSpeed(1); //TODO Does not work when crafting
         }
     }
 
