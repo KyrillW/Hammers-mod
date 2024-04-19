@@ -21,42 +21,53 @@ public class SurroudingPosititons {
     }
 
     private static ArrayList<Vec3i> surroundingPos = new ArrayList<>();
-    private static int lastSize = 0;
+    private static BlockPos middleBlock = new BlockPos(0, 0, 0);
 
-    private static void fillSurroundingPos(int size) {
-        for (int x = -size; x <= size; x++) {
-            for (int y = -size; y <= size; y++) {
-                for (int z = -size; z <= size; z++) {
-                    surroundingPos.add(new Vec3i(x, y, z));
+    private static void fillSurroundingPos(int size, Direction direction) {
+        surroundingPos.clear();
+        if (direction == Direction.DOWN || direction == Direction.UP) {
+            for (int x = -size; x <= size; x++) {
+                for (int y = -size; y <= size; y++) {
+                    for (int z = -size; z <= size; z++) {
+                        surroundingPos.add(new Vec3i(x, y, z));
+                    }
+                }
+            }
+        } else {
+            for (int x = -size; x <= size; x++) {
+                for (int y = -1; y <= size * 2 - 1; y++) {
+                    for (int z = -size; z <= size; z++) {
+                        surroundingPos.add(new Vec3i(x, y, z));
+                    }
                 }
             }
         }
     }
 
     public static List<BlockPos> getSurroundingBlocks(BlockPos pos, Direction direction, int size){
-        if (lastSize != size){
-            surroundingPos.clear();
-            fillSurroundingPos(size);
-            lastSize = size;
-        }
-        ArrayList<BlockPos> surroundingBlocks = new ArrayList<>();
+        middleBlock = pos;
+        fillSurroundingPos(size, direction);
 
-        for (Vec3i vec3i : surroundingPos) {
-            if(direction == Direction.DOWN || direction == Direction.UP){
-                if (vec3i.getY() == 0) {
-                    surroundingBlocks.add(pos.add(vec3i));
-                }
-            }else if (direction == Direction.NORTH || direction == Direction.SOUTH) {
-                if (vec3i.getZ() == 0) {
-                    surroundingBlocks.add(pos.add(vec3i));
-                }
-            }else if (direction == Direction.EAST || direction == Direction.WEST) {
-                if (vec3i.getX() == 0) {
-                    surroundingBlocks.add(pos.add(vec3i));
+        List<Vec3i> copyOfSurroundingPos = new ArrayList<>(surroundingPos);
+        ArrayList<BlockPos> surroundingBlocks = new ArrayList<>();
+        for (Vec3i vec3i : copyOfSurroundingPos) {
+            if (vec3i != null) {
+                if(direction == Direction.DOWN || direction == Direction.UP){
+                    if (vec3i.getY() == 0) {
+                        surroundingBlocks.add(pos.add(vec3i));
+                    }
+                }else if (direction == Direction.NORTH || direction == Direction.SOUTH) {
+                    if (vec3i.getZ() == 0) {
+                        surroundingBlocks.add(pos.add(vec3i));
+                    }
+                }else if (direction == Direction.EAST || direction == Direction.WEST) {
+                    if (vec3i.getX() == 0) {
+                        surroundingBlocks.add(pos.add(vec3i));
+                    }
                 }
             }
         }
-        return surroundingBlocks;
+        return new ArrayList<>(surroundingBlocks);
     }
 
     public static List<BlockPos> getSurroundingBlocks(World world, PlayerEntity player, int size){
@@ -74,7 +85,6 @@ public class SurroudingPosititons {
     }
 
     public static List<BlockPos> getFilteredSurroundingBlocks(World world, PlayerEntity player, List<BlockPos> posList) {
-        BlockPos middleBlock = posList.get(Math.floorDiv(posList.size(), 2));
         ArrayList<BlockPos> list = new ArrayList<>();
         if (!world.getBlockState(middleBlock).isIn(ModBlockTags.HAMMER_MINEABLE)) {
             return list;
