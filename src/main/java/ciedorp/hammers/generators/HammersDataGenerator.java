@@ -1,9 +1,6 @@
 package ciedorp.hammers.generators;
 
-import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
-
-import ciedorp.hammers.Hammers;
+import ciedorp.hammers.items.ItemInit;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -15,6 +12,9 @@ import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
+
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
 public class HammersDataGenerator implements DataGeneratorEntrypoint {
     
@@ -52,7 +52,7 @@ public class HammersDataGenerator implements DataGeneratorEntrypoint {
 
         @Override
         public void generateTranslations(TranslationBuilder translationBuilder) {
-            translationBuilder.add(Hammers.DIAMOND_HAMMER, "Diamond Hammer");
+            translationBuilder.add(ItemInit.DIAMOND_HAMMER, "Diamond Hammer");
 
             // Load an existing language file.
             try {

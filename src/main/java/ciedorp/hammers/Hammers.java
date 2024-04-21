@@ -1,42 +1,35 @@
 package ciedorp.hammers;
 
+import ciedorp.hammers.items.ItemInit;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ToolMaterials;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ciedorp.hammers.items.HammerItem;
-
 public class Hammers implements ModInitializer {
+	public static final String MOD_ID = "hammers";
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("hammers");
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static HammerItem DIAMOND_HAMMER = new HammerItem(0, 0, ToolMaterials.DIAMOND, new Item.Settings());
-
+//	public static HammerItem DIAMOND_HAMMER = new HammerItem(0, 0, ToolMaterials.DIAMOND, new Item.Settings());
 
 	@Override
 	public void onInitialize() {
-		Registry.register(Registries.ITEM, new Identifier("hammers", "diamond_hammer"), DIAMOND_HAMMER);
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(content -> {
-			content.add(DIAMOND_HAMMER);
-		});
+		ItemInit.registration();
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SEARCH).register(content -> {
-			content.add(DIAMOND_HAMMER);
-		});
-
-		// UseItemCallback.EVENT.register((world, player, pos, state, entity) -> {
-        //     HammerItem.test();
-        //     return false;
-        // });
+//		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(literal("toggleCreeperGriefing").requires(source -> source.hasPermissionLevel(4)).executes(context -> {
+//			final ServerCommandSource source = context.getSource();
+//			PlayerEntity player = source.getPlayer();
+//			ItemStack itemStack = player.getMainHandStack();
+//			if (player.getMainHandStack().getItem() instanceof HammerItem) {
+//				itemStack.setDamage(200);
+//				HammerStackInterface hammerStack = (HammerStackInterface) (Object) itemStack;
+//				hammerStack.setSize(69);
+//				player.getInventory().setStack(0, (ItemStack) (Object) hammerStack);
+//				source.sendFeedback(() -> Text.literal("WOOOW het werkt"), false);
+//			}
+//			return 1;
+//		})));
 
 		LOGGER.info("Hello Fabric world!");
 	}

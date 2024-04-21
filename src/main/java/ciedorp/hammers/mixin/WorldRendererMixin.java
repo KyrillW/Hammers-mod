@@ -1,21 +1,8 @@
 package ciedorp.hammers.mixin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.gen.Invoker;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import ciedorp.hammers.Hammers;
+import ciedorp.hammers.interfaces.HammerStack;
 import ciedorp.hammers.items.HammerItem;
+import ciedorp.hammers.tags.ModBlockTags;
 import ciedorp.hammers.util.AppendedObjectIterator;
 import ciedorp.hammers.util.SurroudingPosititons;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -38,41 +25,51 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.RaycastContext;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+
 
 @Mixin(WorldRenderer.class)
 @Environment(EnvType.CLIENT)
-public class WorldRendererMixin {
+public abstract class WorldRendererMixin {
    
     @Shadow @Final private MinecraftClient client;
     @Shadow private ClientWorld world;
     @Shadow @Final private Long2ObjectMap<SortedSet<BlockBreakingInfo>> blockBreakingProgressions;
-    
+
     @Inject(at = @At("HEAD"), method = "drawBlockOutline", cancellable = true)
     private void drawBlockOutline(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci){
         if (!(entity instanceof PlayerEntity player)) {
             return;
         }
-        Item tool = player.getMainHandStack().getItem();
-        if (!(tool instanceof HammerItem hammer)) {
+
+        ItemStack toolStack = player.getMainHandStack();
+        Item tool = toolStack.getItem();
+        if (!(tool instanceof HammerItem)) {
             return;
         }
-        if (!(tool.isSuitableFor(state))) {
+        HammerStack hammerStack = (HammerStack) (Object) toolStack;
+        List<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(world, player, hammerStack.getSize());
+//        if (!seeableBlocks.isEmpty()) {
+//            hammer.setSurroundingBlocksPos(seeableBlocks);
+//        }
+
+        if (!state.isIn(ModBlockTags.HAMMER_MINEABLE)) {
             return;
         }
-
-        Vec3d camera = new Vec3d(cameraX, cameraY, cameraZ);
-        Vec3d blockPos = pos.toCenterPos();
-        BlockHitResult blockHitResult = world.raycast(new RaycastContext(camera, blockPos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
-        Direction direction = blockHitResult.getSide();
-
-        ArrayList<BlockPos> seeableBlocks = SurroudingPosititons.getSurroundingBlocks(pos, direction);
-        hammer.setSurroundingBlocksPos(seeableBlocks);
 
         List<VoxelShape> outlineShapes = new ArrayList<>();
         outlineShapes.add(VoxelShapes.empty());
@@ -86,9 +83,9 @@ public class WorldRendererMixin {
             }
 
             outlineShapes.forEach(shape -> drawCuboidShapeOutline(matrices, vertexConsumer, shape,
-                (double) crosshairPos.getX() - cameraX,
-                (double) crosshairPos.getY() - cameraY,
-                (double) crosshairPos.getZ() - cameraZ,
+                    crosshairPos.getX() - cameraX,
+                    crosshairPos.getY() - cameraY,
+                    crosshairPos.getZ() - cameraZ,
                 0.08f, 0.8f, 0.996f, 1));
 
             ci.cancel();
@@ -117,8 +114,8 @@ public class WorldRendererMixin {
             HitResult crosshairTarget = client.crosshairTarget;
 
             // ensure we're not displaying an outline on a creeper or air
-            if (crosshairTarget instanceof BlockHitResult) {
-                BlockPos crosshairPos = ((BlockHitResult) crosshairTarget).getBlockPos();
+            if (crosshairTarget instanceof BlockHitResult blockHitResult) {
+                BlockPos crosshairPos = blockHitResult.getBlockPos();
                 SortedSet<BlockBreakingInfo> infos = this.blockBreakingProgressions.get(crosshairPos.asLong());
 
                 // make sure current block breaking progress is valid
@@ -127,17 +124,20 @@ public class WorldRendererMixin {
                     int stage = breakingInfo.getStage();
 
                     // collect positions for displaying outlines at
-                    List<BlockPos> positions = SurroudingPosititons.getSurroundingBlocks(world, client.player, crosshairPos);
-                    Long2ObjectMap<BlockBreakingInfo> map = new Long2ObjectLinkedOpenHashMap<>(positions.size());
+                    HammerStack hammerStack = (HammerStack) (Object) heldStack;
+                    List<BlockPos> surroundingBlocks = SurroudingPosititons.getSurroundingBlocks(world, client.player, hammerStack.getSize());
+                    if (!surroundingBlocks.isEmpty()) {
+                        List<BlockPos> positions = SurroudingPosititons.getFilteredSurroundingBlocks(world, client.player, surroundingBlocks);
+                        Long2ObjectMap<BlockBreakingInfo> map = new Long2ObjectLinkedOpenHashMap<>(positions.size());
 
-                    // filter positions
-                    for (BlockPos position : positions) {
-                        BlockBreakingInfo info = new BlockBreakingInfo(breakingInfo.hashCode(), position);
-                        info.setStage(stage);
-                        map.put(position.asLong(), info);
+                        // filter positions
+                        for (BlockPos position : positions) {
+                            BlockBreakingInfo info = new BlockBreakingInfo(breakingInfo.hashCode(), position);
+                            info.setStage(stage);
+                            map.put(position.asLong(), info);
+                        }
+                        return map;
                     }
-
-                    return map;
                 }
             }
         }
@@ -145,3 +145,4 @@ public class WorldRendererMixin {
         return Long2ObjectMaps.emptyMap();
     }
 }
+

@@ -1,0 +1,13 @@
+{
+  "item.hammers.stone_hammer": "Stone Hammer",
+  "item.hammers.iron_hammer": "Iron Hammer",
+  "item.hammers.gold_hammer": "Golden Hammer",
+  "item.hammers.diamond_hammer": "Diamond Hammer",
+  "item.hammers.netherite_hammer": "Netherite Hammer",
+  "item.hammers.size_core": "Size Core",
+  "item.hammers.size_upgrade": "Size Upgrade",
+  "item.hammers.durability_core": "Durability Core",
+  "item.hammers.durability_upgrade": "Durability Upgrade",
+  "item.hammers.speed_core": "Speed Core",
+  "item.hammers.speed_upgrade": "Speed Upgrade"
+}
