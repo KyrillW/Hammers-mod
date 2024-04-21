@@ -57,8 +57,6 @@ public class BlockBreaker {
             if (interactionManager.getGameMode() != GameMode.CREATIVE) {
                 boolean bl2 = player.canHarvest(state);
 
-                //TODO Als durability op is niet alles minen.
-
                 ItemStack heldStack2 = heldStack.copy();
                 heldStack.postMine(world, state, pos, player);
                 if (bl && bl2) {
@@ -81,7 +79,7 @@ public class BlockBreaker {
 
     private static boolean isLucky(HammerStack hammerStack) {
         for (int i = 0; i < hammerStack.getSize(); i++) {
-            int luckyInt = random.nextInt(2); //TODO Change drop chance
+            int luckyInt = random.nextInt(250);
             if (luckyInt == 0) {
                 return true;
             }

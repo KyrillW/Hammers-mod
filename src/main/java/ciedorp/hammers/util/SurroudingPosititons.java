@@ -2,6 +2,7 @@ package ciedorp.hammers.util;
 
 import ciedorp.hammers.tags.ModBlockTags;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -89,14 +90,19 @@ public class SurroudingPosititons {
         if (!world.getBlockState(middleBlock).isIn(ModBlockTags.HAMMER_MINEABLE)) {
             return list;
         }
+        ItemStack heldStack = player.getMainHandStack();
+        int mineableCount = heldStack.getMaxDamage() - heldStack.getDamage();
         float middleBlockBreakDelta = BlockInfo.blockBreakingTime(world, world.getBlockState(middleBlock), middleBlock, player);
         for (BlockPos blockPos : posList) {
-            if (!world.getBlockState(blockPos).isIn(ModBlockTags.HAMMER_MINEABLE)) {
+            if (!world.getBlockState(blockPos).isIn(ModBlockTags.HAMMER_MINEABLE) || world.getBlockState(blockPos).isAir()) {
                 continue;
             }
             float breakTime = BlockInfo.blockBreakingTime(world, world.getBlockState(blockPos), blockPos, player);
             if (breakTime >= middleBlockBreakDelta || breakTime >= 1){
                 list.add(blockPos);
+            }
+            if (list.size() >= mineableCount) {
+                return list;
             }
         }
         return list;
