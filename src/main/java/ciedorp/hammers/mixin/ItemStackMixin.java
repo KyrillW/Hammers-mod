@@ -53,7 +53,7 @@ public class ItemStackMixin implements HammerStack {
 
     @Override
     public boolean upgradeHammerDurability() {
-        if (getHammerDurability() <= 4){
+        if (getHammerDurability() <= 9){
             setHammerDurability(getHammerDurability() + 1);
             return true;
         }
@@ -72,7 +72,7 @@ public class ItemStackMixin implements HammerStack {
 
     @Override
     public boolean upgradeSpeed() {
-        if (getSpeed() <= 4){
+        if (getSpeed() <= 9){
             setSpeed(getSpeed() + 1);
             return true;
         }
@@ -84,7 +84,16 @@ public class ItemStackMixin implements HammerStack {
         if (self.getItem() instanceof HammerItem) {
             setSize(1);
             setHammerDurability(1);
-            setSpeed(1); //TODO Does not work when crafting
+            setSpeed(1);
+        }
+    }
+
+    @Inject(method = "Lnet/minecraft/item/ItemStack;<init>(Lnet/minecraft/item/ItemConvertible;I)V", at = @At("TAIL"))
+    private void onInit(ItemConvertible item, int count, CallbackInfo ci) {
+        if (self.getItem() instanceof HammerItem) {
+            setSize(1);
+            setHammerDurability(1);
+            setSpeed(1);
         }
     }
 

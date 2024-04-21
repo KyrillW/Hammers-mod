@@ -28,8 +28,8 @@ public class HammerItem extends MiningToolItem {
         if (stack.getItem() instanceof HammerItem) {
             HammerStack hammerStack = (HammerStack) (Object) stack;
             tooltip.add(Text.literal("HammerInfo:").formatted(Formatting.GRAY));
-            tooltip.add(Text.literal(" Durability " + hammerStack.getHammerDurability()).formatted(Formatting.BLUE));
             tooltip.add(Text.literal(" Size " + hammerStack.getSize()).formatted(Formatting.BLUE));
+            tooltip.add(Text.literal(" Durability " + hammerStack.getHammerDurability()).formatted(Formatting.BLUE));
             tooltip.add(Text.literal(" Speed " + hammerStack.getSpeed()).formatted(Formatting.BLUE));
             tooltip.add(Text.of(""));
         }
@@ -50,6 +50,6 @@ public class HammerItem extends MiningToolItem {
     @Override
     public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
         HammerStack hammerStack = (HammerStack) (Object) stack;
-        return state.isIn(this.effectiveBlocks) ? this.miningSpeed * (1.0f + (float)(hammerStack.getSpeed() - 1) * 1.65f) : 1.0f; //TODO Right speed for insta mining bedrock ores with efficiency 5
+        return state.isIn(this.effectiveBlocks) ? this.miningSpeed * (1.0f + (float)(hammerStack.getSpeed() - 1) * 1.235f) : 1.0f;
     }
 }
