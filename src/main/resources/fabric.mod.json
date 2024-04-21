@@ -3,15 +3,14 @@
 	"id": "hammers",
 	"version": "${version}",
 	"name": "Hammers",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "This mod adds 5 new hammers to the game, upgradeable in mining size, mining speed and durability.",
 	"authors": [
-		"Me!"
+		"KyrillW"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/KyrillW/Hammers-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/hammers/icon.png",
 	"environment": "*",
 	"entrypoints": {
